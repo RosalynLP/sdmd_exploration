@@ -30,3 +30,4 @@ data/
 
 # Ignore app deployment
 AppDeployment.R
+b6_app/rsconnect
