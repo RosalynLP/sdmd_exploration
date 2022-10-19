@@ -27,3 +27,6 @@ data/
 .DS_Store
 
 *.html
+
+# Ignore app deployment
+AppDeployment.R

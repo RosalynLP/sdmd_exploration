@@ -36,7 +36,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Exploring SDMD data
 
 - Created shiny app to explore the open data on SDMD
-- Link to shiny app: [link]()
+- Link to shiny app: [https://rosalynlp.shinyapps.io/sdmd_explore/](https://rosalynlp.shinyapps.io/sdmd_explore/)
 - Data sources:
 
     * [Population figures](https://www.opendata.nhs.scot/dataset/population-estimates/resource/27a72cc8-d6d8-430c-8b4f-3109a9ceadb1)
