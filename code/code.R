@@ -20,6 +20,7 @@ drug_presenting <- read.csv("data/basefiles/drug_treatment_present_council_agese
 drug_treatment <- read.csv("data/basefiles/drug_treatment_type.csv")
 
 sdmd <- read.csv("data/basefiles/demographics_sdmd_healthboard.csv")
+sdmd_treatment <- read.csv("data/basefiles/treatment_group_sdmd_healthboard.csv")
 hospital <- read.csv("data/basefiles/open-datadrug_related_hospital_stays_healthboard.csv")
 
 
