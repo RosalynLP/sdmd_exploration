@@ -59,6 +59,7 @@ ui <- fluidPage(
                     tags$li("The SDMD was set up in 1990"),
                     tags$li("Data are collected when an individual makes contact with 
                             structured community or residential treatment"),
+                    tags$li("Data are binned by financial year (Apr-Apr)"),
                     tags$li("For 2013/14 there were issues with data collection so data for some
        boards and aggregated data are not present"),
                     tags$li("Breakdown by NHS Health Board was considered the most robust geographical
@@ -79,11 +80,12 @@ ui <- fluidPage(
        population change is slow moving so this should not have a significant effect."),
                     br(),
                     h5("Substance"),
-                    tags$li("Substance is the illicit substance which individuals report taking
-       on assessment."),
+                    tags$li("Substance is the illicit substance which individuals are referred
+                            to treatment for. Note that each individual can be treated for 
+                            more than one substance."),
                     tags$li("'Number' is the number of individuals reporting taking that substance on assessment"),
-                    tags$li("'Percentage' is the percentage of individuals reporting taking that substance 
-       on assessment, where the denominator is the number of individuals assessed for treatment
+                    tags$li("'Percentage' is the percentage of individuals referred to treatment for 
+       that substance, where the denominator is the number of individuals assessed for treatment
        within that NHS Health Board"),
                     tags$li("'Rate' is the number of individuals assessed for treatment per 1,000 members of
        the population. Population estimates are broken down by age group, sex, NHS 
@@ -121,33 +123,33 @@ ui <- fluidPage(
                        maxOptionsText="Choose up to three options")
                      )
                         ),
-         h4("People assessed in each financial year starting"),
+         h4("Individuals assessed for treatment"),
          plotlyOutput("mainPlot")
       ),
       ## Substance treated for ----
       tabPanel("Substance",
-               tagList(sliderInput("years2",
-                                   "Select financial year(s) beginning:",
-                                   min = 2006,
-                                   max = 2020,
-                                   sep = "",
-                                   value = c(2006, 2020)),
-                       pickerInput("numberorpc2",
-                                   "Select whether to use absolute number, percentage or population rate:",
-                                   choices = c("Number", "Percentage", "Rate"),
-                                   selected = "Rate"),
-                       pickerInput("hbs2",
-                                   "Select up to 3 health boards:",
-                                   choices = unique(sdmd_drugs$HBRfull),
-                                   selected = c("Scotland"),
-                                   multiple = TRUE, 
-                                   options = pickerOptions(
-                                     liveSearch=TRUE,
-                                     maxOptions = 3,
-                                     maxOptionsText="Choose up to three options")),
-                       h4("People assessed for drug treatment in each financial year starting"),
-                       plotlyOutput("drugPlot")
-               ) # tagList
+         tagList(sliderInput("years2",
+                             "Select financial year(s) beginning:",
+                             min = 2006,
+                             max = 2020,
+                             sep = "",
+                             value = c(2006, 2020)),
+                 pickerInput("numberorpc2",
+                             "Select whether to use absolute number, percentage or population rate:",
+                             choices = c("Number", "Percentage", "Rate"),
+                             selected = "Rate"),
+                 pickerInput("hbs2",
+                             "Select up to 3 health boards:",
+                             choices = unique(sdmd_drugs$HBRfull),
+                             selected = c("Scotland"),
+                             multiple = TRUE, 
+                             options = pickerOptions(
+                               liveSearch=TRUE,
+                               maxOptions = 3,
+                               maxOptionsText="Choose up to three options")),
+                 h4("Individuals assessed for treatment by treatment substance"),
+                 plotlyOutput("drugPlot")
+         ) # tagList
             ) # tabPanel
      
         ) #tabBox
@@ -192,7 +194,7 @@ server <- function(input, output) {
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=PercentAssessed)) 
      } else {
-       ylabel <- "Rate assessed per 1000 population"
+       ylabel <- "Rate assessed per 1,000 population"
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=Rate))
      }
@@ -255,7 +257,7 @@ server <- function(input, output) {
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=PercentAssessed)) 
      } else {
-       ylabel <- "Rate assessed per 1000 population"
+       ylabel <- "Rate assessed per 1,000 population"
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=Rate))
      }
