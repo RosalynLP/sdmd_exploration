@@ -24,3 +24,11 @@ div {
   text-align: center;
   vertical-align: baseline;
 }
+
+/* style text in nice colours */
+
+.title {color: #1E7F84;}
+
+h1, h2, h3, h4, h5, h6, h7, h8 {color: #3F3685;}
+
+body {color: black;}

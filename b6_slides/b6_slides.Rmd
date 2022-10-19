@@ -16,17 +16,12 @@ library(kableExtra)
 
 knitr::opts_chunk$set(echo = FALSE)
 
-# Create data frame for table
-table_contents <- data.frame(c("Text", "Text",
-                               "Text", "Text",
-                               "Text"),
-                             c(1:5))
 ```
 
 ## Background
 
-- Scotland (as of 2019) has the highest drug deaths rate in Europe, according to the [NRS reporting from European Monitoring Centre for Drugs and Drug Addiction](https://webarchive.nrscotland.gov.uk/web/20210317072542/https://www.nrscotland.gov.uk/files//statistics/drug-related-deaths/2019/drug-related-deaths-19-pub.pdf) - 3.5 times that of the UK
-- The rate has also been increasing in recent years
+- Scotland (as of 2019) has highest drug deaths rate in Europe, according to the [NRS reporting from European Monitoring Centre for Drugs and Drug Addiction](https://webarchive.nrscotland.gov.uk/web/20210317072542/https://www.nrscotland.gov.uk/files//statistics/drug-related-deaths/2019/drug-related-deaths-19-pub.pdf) - 3.5 times that of the UK
+- Rate has also been increasing in recent years
 - Important to understand regional and demographic trends as well as trends in substances
 - Help individual health boards, Scottish Government and third party groups to improve services and policy
 
@@ -34,18 +29,38 @@ table_contents <- data.frame(c("Text", "Text",
 
 - Established in 1990
 - Data collected when individual contacts structured community/residential treatment
-- To be replaced by DAISy (combine with waiting times) - only 1 year of DAISy data so far
-- Report on SDMD
+- To be replaced by Drug and Alcohol Information System (DAISy; combine with waiting times) - only 1 year of DAISy data so far
+- [PHS 2020/21 report on SDMD](https://publichealthscotland.scot/media/13552/2022-05-17-sdmd-report.pdf)
 
 
-## Slide title
+## Exploring SDMD data
 
-[PHS homepage](https://publichealthscotland.scot/)
+- Created shiny app to explore the open data on SDMD
+- Link to shiny app: [link]()
+- Data sources:
 
-## Slide title
+    * [Population figures](https://www.opendata.nhs.scot/dataset/population-estimates/resource/27a72cc8-d6d8-430c-8b4f-3109a9ceadb1)
+    * [Demographic breakdown](https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/e096573f-b828-4e8d-abf2-84f94345a751)
+    * [Treatment breakdown](https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/aebb18ee-40c3-4520-9521-d0800e749567)
 
-```{r, echo = FALSE}
-    kable(table_contents,
-          col.names = c("Column heading", "Column heading"),
-          format = "markdown")
-```
+
+## Findings from data
+
+- Decrease in individuals assessed for 2020/2021 - effect of COVID
+- Highest rates for 20-44 year olds
+- Increasing number of individuals assessed in higher age groups, decreasing in lower
+- Tends to be higher rate in more urban areas 
+- Roughly 30% female, 70% male
+- 70-80% of those assessed using illegal substance
+- Highest proportion heroin but downward trend 
+- Heroin usage widely varies by board
+- Cannabis on rise in Forth Valley
+
+## Limitations
+
+- 2013/14 issues with data collection
+- No SIMD breakdown
+- No age/sex cross data
+- Limited treatment group substances - no separate recording of e.g. cocaine and etizolam
+
+
