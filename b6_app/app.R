@@ -8,35 +8,11 @@ library(ggplot2)
 library(plotly)
 library(tidyverse)
 library(bslib)
+library(glue)
 
-substrRight <- function(x, n){
-  substr(x, 1, n)
-}
 
-sdmd <- read.csv("demographics_sdmd_healthboard.csv") %>% 
-  mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
-         YearBeginning = substrRight(as.character(FinancialYear), 4),
-         AgeGroup = factor(as.character(AgeGroup), levels=c("Under 20yrs old",
-                                              "20 to 24 yrs old",
-                                              "25 to 29 yrs old",
-                                              "30 to 34 yrs old",
-                                              "35 to 39 yrs old",
-                                              "40 to 44 yrs old",
-                                              "45+ yrs old",
-                                              "Unknown",
-                                              "All")))
-
-sdmd_drugs <- read.csv("treatment_group_sdmd_healthboard.csv") %>% 
-  mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
-         YearBeginning = substrRight(as.character(FinancialYear), 4),
-         Substance = case_when(as.character(TreatmentGroup) == "All" ~ "All",
-                               as.character(TreatmentGroup) == "Reporting any illicit drug" ~ "Any illicit",
-                               as.character(TreatmentGroup) == "Illicit drug - Heroin" ~ "Heroin",
-                               as.character(TreatmentGroup) == "Illicit drug - Diazepam" ~ "Diazepam",
-                               as.character(TreatmentGroup) == "Illicit drug - Cannabis" ~ "Cannabis",
-                               as.character(TreatmentGroup) == "Reporting any prescribed drug" ~ "Any prescribed",
-                               as.character(TreatmentGroup) == "Prescribed drug - Methadone" ~ "Methadone",
-                               as.character(TreatmentGroup) == "Current injectors" ~ "Injectors") )
+# Wrangle data
+source("data_wrangling.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -61,9 +37,9 @@ ui <- fluidPage(
                      choices = c("Age", "Sex"),
                      selected = "Age"),
          pickerInput("numberorpc",
-                     "Select whether to use absolute number or percentage:",
-                     choices = c("Number", "Percentage"),
-                     selected = "Number"),
+                     "Select whether to use absolute number, percentage or population rate:",
+                     choices = c("Number", "Percentage", "Rate"),
+                     selected = "Rate"),
          pickerInput("hbs",
                      "Select up to 3 health boards:",
                      choices = unique(sdmd$HBRfull),
@@ -75,6 +51,7 @@ ui <- fluidPage(
                        maxOptionsText="Choose up to three options")
                      )
                         ),
+         h4("People assessed in each financial year starting"),
          plotlyOutput("mainPlot")
       ),
       tabPanel("Substance",
@@ -85,9 +62,9 @@ ui <- fluidPage(
                                    sep = "",
                                    value = c(2006, 2020)),
                        pickerInput("numberorpc2",
-                                   "Select whether to use absolute number or percentage:",
-                                   choices = c("Number", "Percentage"),
-                                   selected = "Number"),
+                                   "Select whether to use absolute number, percentage or population rate:",
+                                   choices = c("Number", "Percentage", "Rate"),
+                                   selected = "Rate"),
                        pickerInput("hbs2",
                                    "Select up to 3 health boards:",
                                    choices = unique(sdmd_drugs$HBRfull),
@@ -97,6 +74,7 @@ ui <- fluidPage(
                                      liveSearch=TRUE,
                                      maxOptions = 3,
                                      maxOptionsText="Choose up to three options")),
+                       h4("People using a given drug on assessment in each financial year starting"),
                        plotlyOutput("drugPlot")
                ) # tagList
             ) # tabPanel
@@ -135,10 +113,14 @@ server <- function(input, output) {
        ylabel <- "Number assessed"
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=NumberAssessed)) 
-     } else {
+     } else if (input$numberorpc == "Percentage"){
        ylabel <- "Percentage assessed"
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=PercentAssessed)) 
+     } else {
+       ylabel <- "Rate assessed per 1000 population"
+       p <- p %>% 
+         ggplot(aes(x=YearBeginning, y=Rate))
      }
      if(input$ageorsex == "Age"){
        p <- p + 
@@ -166,7 +148,7 @@ server <- function(input, output) {
              panel.grid.major.y = element_line(colour = "light grey")) 
      
      ggplotly(p) %>% 
-       layout(margin = list(b = 80, t = 50, r=150, l=50))
+       layout(margin = list(b = 80, t = 50, r=150, l=100))
      
    })
    
@@ -191,10 +173,14 @@ server <- function(input, output) {
        ylabel <- "Number assessed"
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=NumberAssessed)) 
-     } else {
+     } else if (input$numberorpc2 == "Percentage"){
        ylabel <- "Percentage assessed"
        p <- p %>% 
          ggplot(aes(x=YearBeginning, y=PercentAssessed)) 
+     } else {
+       ylabel <- "Rate assessed per 1000 population"
+       p <- p %>% 
+         ggplot(aes(x=YearBeginning, y=Rate))
      }
      
      p <- p +
@@ -217,7 +203,7 @@ server <- function(input, output) {
              panel.grid.major.y = element_line(colour = "light grey")) 
      
      ggplotly(p) %>% 
-       layout(margin = list(b = 80, t = 50, r=150, l=50))
+       layout(margin = list(b = 80, t = 50, r=150, l=100))
      
    })
    

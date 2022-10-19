@@ -1,84 +1,12 @@
-##########################################################
-# Band 6 presentation 
-# extraction & analysis
-# Written/run on RStudio server 1.1.463 and R 3.6.1
-# Author: Rosalyn Pearson
-##########################################################
+## Data wrangling for shiny app
 
 
-### 1 - Housekeeping ----
-#   loading packages
-source("code/packages.R") 
-#   defining functions
-source("code/functions.R") # Remove this line if defining functions here
+substrRight <- function(x, n){
+  substr(x, 1, n)
+}
 
-
-
-### 2 Load data ----
-drug_demo <- read.csv("data/basefiles/drug_treatment_demographics.csv")
-drug_presenting <- read.csv("data/basefiles/drug_treatment_present_council_agesex.csv")
-drug_treatment <- read.csv("data/basefiles/drug_treatment_type.csv")
-
-sdmd <- read.csv("data/basefiles/demographics_sdmd_healthboard.csv")
-sdmd_treatment <- read.csv("data/basefiles/treatment_group_sdmd_healthboard.csv")
-hospital <- read.csv("data/basefiles/open-datadrug_related_hospital_stays_healthboard.csv")
-
-
-### 3 Analysis ----
-mf <- drug_demo %>% 
-  dplyr::filter(Measure == "Number",
-                SubstanceType == "All") %>% 
-  select("Quarter", "SexMale", "SexFemale") %>% 
-  dplyr::mutate(Quarter = factor(Quarter, levels=c("Q1 2021/2022", "Q2 2021/2022", "Q3 2021/2022",
-                                                   "Q4 2021/2022", "Q1 2022/2023")))
-
-fig <- mf  %>% 
-  plot_ly(x = ~Quarter, y = ~SexFemale, type = 'bar', name = 'Female') %>% 
-  add_trace(y = ~SexMale, name = 'Male') %>% 
-  layout(yaxis = list(title = 'Count'), barmode = 'stack')
-
-fig
-
-df <- drug_demo %>% 
-  dplyr::filter(Measure == "Number") %>% 
-  #select("Quarter", "SubstanceType",  dplyr::starts_with("Age")) %>% 
-  pivot_longer(cols = dplyr::starts_with("Age"), names_to = "Age", values_to = "Number") %>% 
-  dplyr::mutate(Quarter = factor(Quarter, levels=c("Q1 2021/2022", "Q2 2021/2022", "Q3 2021/2022",
-                                                   "Q4 2021/2022", "Q1 2022/2023"))) %>% 
-  dplyr::mutate(Age = case_when(Age == "AgeUnder20" ~ "<20",
-                                Age == "Age20_29" ~ "20-29",
-                                Age == "Age30_39" ~ "30-39",
-                                Age == "Age40_49" ~ "40-49",
-                                Age == "Age50_59" ~ "50-59",
-                                Age == "Age60Plus" ~ "60+")) %>% 
-  dplyr::mutate(Age = factor(Age, levels = c("<20", "20-29", "30-39", "40-49", "50-59", "60+")))
-
-plot1 <- df %>% 
-  filter(SubstanceType != "All",
-         ServiceType == "Community-based service") %>% 
-  ggplot(aes(x=Quarter, y=Number, fill=Age)) +
-  geom_bar(stat="identity") +
-  facet_grid(SubstanceType~Age) +
-  scale_fill_manual(values=as.character(phs_palettes$all))
-
-ggplotly(plot1)
-
-
-plot2 <- sdmd %>% 
-  select(FinancialYear, HBR, AgeGroup, Sex, NumberAssessed) %>% 
-  filter(Sex=="All",
-         HBR!="S92000003") %>% 
-  ggplot(aes(x=FinancialYear, y=NumberAssessed, fill=AgeGroup)) +
-  geom_bar(stat="identity") +
-  facet_wrap(~HBR)
-
-ggplotly(plot2)
-
-
-# Population join
-
-
-population <- read.csv("data/basefiles/hb2019_pop_est_15072022.csv") %>% 
+# Population figures
+population <- read.csv("hb2019_pop_est_15072022.csv") %>% 
   # Aggregate age groups
   mutate(`All` = rowSums(select(., starts_with("Age")), na.rm=TRUE),
          `Under 20yrs old` = rowSums(select(., c("Age1", "Age2", "Age3", "Age4", "Age5",
@@ -121,7 +49,8 @@ population_sub <- population %>%
   select(YearBeginning, HBRfull, Population)
 
 
-sdmd <- read.csv("data/basefiles/demographics_sdmd_healthboard.csv") %>% 
+# SDMD demographics
+sdmd <- read.csv("demographics_sdmd_healthboard.csv") %>% 
   mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
          YearBeginning = substrRight(as.character(FinancialYear), 4),
          AgeGroup = factor(as.character(AgeGroup), levels=c("Under 20yrs old",
@@ -134,9 +63,11 @@ sdmd <- read.csv("data/basefiles/demographics_sdmd_healthboard.csv") %>%
                                                             "Unknown",
                                                             "All"))) %>% 
   merge(population) %>% 
+  # Calculate rate
   mutate(Rate = 1000*NumberAssessed / Population)
 
-sdmd_drugs <- read.csv("data/basefiles/treatment_group_sdmd_healthboard.csv") %>% 
+# SDMD substance breakdown
+sdmd_drugs <- read.csv("treatment_group_sdmd_healthboard.csv") %>% 
   mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
          YearBeginning = substrRight(as.character(FinancialYear), 4),
          Substance = case_when(as.character(TreatmentGroup) == "All" ~ "All",
@@ -148,18 +79,8 @@ sdmd_drugs <- read.csv("data/basefiles/treatment_group_sdmd_healthboard.csv") %>
                                as.character(TreatmentGroup) == "Prescribed drug - Methadone" ~ "Methadone",
                                as.character(TreatmentGroup) == "Current injectors" ~ "Injectors") ) %>% 
   merge(population_sub) %>% 
+  # Calculate rate
   mutate(Rate = 1000*NumberAssessed / Population)
- 
 
 
 
-
-
-
-
-
-
-
-
-
-### END OF SCRIPT ###
