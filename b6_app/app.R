@@ -134,6 +134,7 @@ server <- function(input, output) {
      
      p <- p + scale_fill_manual(values=as.character(phs_palettes$all)) +
        scale_x_date(breaks=yeargap, date_labels="%Y") +
+       scale_y_continuous(labels=function(x) format(x, big.mark = ",", scientific = FALSE)) +
        xlab("") +
        ylab(ylabel) +
        theme(legend.position = "none",
@@ -189,6 +190,7 @@ server <- function(input, output) {
      
      p <- p + scale_fill_manual(values=as.character(phs_palettes$all)) +
        scale_x_date(breaks=yeargap2, date_labels="%Y") +
+       scale_y_continuous(labels=function(x) format(x, big.mark = ",", scientific = FALSE)) +
        xlab("") +
        ylab(ylabel) +
        theme(legend.position = "none",
