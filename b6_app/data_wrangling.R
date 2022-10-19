@@ -6,6 +6,7 @@ substrRight <- function(x, n){
 }
 
 # Population figures
+# Source: https://www.opendata.nhs.scot/dataset/population-estimates/resource/27a72cc8-d6d8-430c-8b4f-3109a9ceadb1
 population <- read.csv("hb2019_pop_est_15072022.csv") %>% 
   # Aggregate age groups
   mutate(`All` = rowSums(select(., starts_with("Age")), na.rm=TRUE),
@@ -30,7 +31,8 @@ population <- read.csv("hb2019_pop_est_15072022.csv") %>%
                                              "Age90plus")), na.rm=TRUE)) %>% 
   select(-c(starts_with("Age"), "AllAges", "HBQF", "SexQF")) %>% 
   mutate(HBRfull = phsmethods::match_area(as.character(HB))) %>% 
-  # Pick closest financial year to match on
+  # Pick closest financial year to match on - there will be a 3 month different window between these
+  # but population is unlikely to significantly change in a 3 month timespan
   mutate(YearBeginning = Year) %>% 
   pivot_longer(cols = c("Under 20yrs old",
                         "20 to 24 yrs old",
@@ -50,6 +52,7 @@ population_sub <- population %>%
 
 
 # SDMD demographics
+# Source: https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/e096573f-b828-4e8d-abf2-84f94345a751
 sdmd <- read.csv("demographics_sdmd_healthboard.csv") %>% 
   mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
          YearBeginning = substrRight(as.character(FinancialYear), 4),
@@ -67,6 +70,7 @@ sdmd <- read.csv("demographics_sdmd_healthboard.csv") %>%
   mutate(Rate = 1000*NumberAssessed / Population)
 
 # SDMD substance breakdown
+# Source: https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/aebb18ee-40c3-4520-9521-d0800e749567
 sdmd_drugs <- read.csv("treatment_group_sdmd_healthboard.csv") %>% 
   mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
          YearBeginning = substrRight(as.character(FinancialYear), 4),
