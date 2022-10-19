@@ -112,6 +112,12 @@ server <- function(input, output) {
      
      # Checking that some health boards have been chosen
      validate(need(length(input$hbs)>0, "Please select some health boards"))
+     
+     if(length(seq(input$years[1], input$years[2])) > 6) {
+       yeargap = "3 years"
+     } else {
+       yeargap = "1 year"
+     }
 
      p <- sdmd %>% filter(YearBeginning %in% seq(input$years[1], input$years[2]),
                           HBRfull %in% input$hbs) %>% 
@@ -145,7 +151,7 @@ server <- function(input, output) {
      }
      
      p <- p + scale_fill_manual(values=as.character(phs_palettes$all)) +
-       scale_x_date(breaks="3 years", date_labels="%Y") +
+       scale_x_date(breaks=yeargap, date_labels="%Y") +
        xlab("") +
        ylab(ylabel) +
        theme(legend.position = "none",
@@ -170,6 +176,12 @@ server <- function(input, output) {
      # Checking that some health boards have been chosen
      validate(need(length(input$hbs2)>0, "Please select some health boards"))
      
+     if(length(seq(input$years2[1], input$years2[2])) > 6) {
+       yeargap2 = "3 years"
+     } else {
+       yeargap2 = "1 year"
+     }
+     
      p <- sdmd_drugs %>% filter(YearBeginning %in% seq(input$years2[1], input$years2[2]),
                           HBRfull %in% input$hbs2) %>% 
        mutate(YearBeginning = as.Date(paste0(YearBeginning, "-01-01"))) %>% 
@@ -190,7 +202,7 @@ server <- function(input, output) {
        facet_grid(HBRfull~Substance, switch="y", labeller = labeller(HBRfull = label_wrap_gen(width = 16)))
      
      p <- p + scale_fill_manual(values=as.character(phs_palettes$all)) +
-       scale_x_date(breaks="3 years", date_labels="%Y") +
+       scale_x_date(breaks=yeargap2, date_labels="%Y") +
        xlab("") +
        ylab(ylabel) +
        theme(legend.position = "none",
