@@ -2,6 +2,8 @@
 # Shiny app for my B6 interview
 # Exploring Scottish drug misuse data
 #
+
+## Load libraries ----
 library(shiny)
 library(shinyWidgets)
 library(ggplot2)
@@ -11,19 +13,87 @@ library(bslib)
 library(glue)
 
 
-# Wrangle data
+# Wrangle data ----
 source("data_wrangling.R")
 
-# Define UI for application that draws a histogram
+# UI ----
 ui <- fluidPage(
   
   theme = bs_theme(version = 4, bootswatch = "minty"),
    
-   # Application title
+   # Title panel ----
    titlePanel("Exploring the Scottish Drug Misuse Database"),
    
    # Sidebar with a slider input for number of bins 
    shinydashboard::tabBox( width=NULL, height="1700px", side="right",
+         ## Notes ----
+         tabPanel("Notes",
+                  tagList(
+                    br(),
+                    p(strong("Use the tabs above to navigate around the app.")),
+                    h4("Notes"),
+                    br(),
+                    tags$b(),
+                    # Data sources
+                    h5("Data sources"),
+                    tags$li("All data are sourced from NHS Scottish open data"),
+                    tags$li(tags$a(
+                      href = "https://www.opendata.nhs.scot/dataset/population-estimates/resource/27a72cc8-d6d8-430c-8b4f-3109a9ceadb1",
+                      "Population data for calculating rates",
+                      class = "externallink")),
+                    tags$li(tags$a(
+                      href = "https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/e096573f-b828-4e8d-abf2-84f94345a751",
+                      "Demographic SDMD data",
+                      class = "externallink")),
+                    tags$li(tags$a(
+                      href = "https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/aebb18ee-40c3-4520-9521-d0800e749567",
+                      "Treatment group SDMD data",
+                      class = "externallink")),
+                    br(),
+                    h5("Source code"),
+                    tags$li("The source code for this app can be found in ", 
+                            tags$a(href="https://github.com/RosalynLP/b6_presentation/tree/main", 
+                                   "this Github repository", class="externallink")),
+                    br(),
+                    h5("Scottish Drug Misuse Database (SDMD)"),
+                    tags$li("The SDMD was set up in 1990"),
+                    tags$li("Data are collected when an individual makes contact with 
+                            structured community or residential treatment"),
+                    tags$li("For 2013/14 there were issues with data collection so data for some
+       boards and aggregated data are not present"),
+                    tags$li("Breakdown by NHS Health Board was considered the most robust geographical
+       breakdown, so that has been chosen for this app"),
+                    tags$li("Orkney 2021 data are missing"),
+                    tags$li("For more information see the ", 
+                            tags$a(href="https://publichealthscotland.scot/media/13552/2022-05-17-sdmd-report.pdf",
+                                   "Public Health Scotland SDMD report", class="externallink")),
+                    br(),
+                    h5("Demographics"),
+                    tags$li("'Number' is the number of individuals assessed for treatment"),
+                    tags$li("'Percentage' is the percentage of individuals assessed for treatment, where
+       the denominator is the number of individuals assessed within that NHS Health Board"),
+                    tags$li("'Rate' is the number of individuals assessed for treatment per 1,000 members of
+       the population. Population estimates are broken down by age group, sex, NHS 
+       Health Board and year. Note that there is a three month difference between the 
+       population estimate bins (Jan-Jan) and the SDMD data bins (Apr-Apr). However, 
+       population change is slow moving so this should not have a significant effect."),
+                    br(),
+                    h5("Substance"),
+                    tags$li("Substance is the illicit substance which individuals report taking
+       on assessment."),
+                    tags$li("'Number' is the number of individuals reporting taking that substance on assessment"),
+                    tags$li("'Percentage' is the percentage of individuals reporting taking that substance 
+       on assessment, where the denominator is the number of individuals assessed for treatment
+       within that NHS Health Board"),
+                    tags$li("'Rate' is the number of individuals assessed for treatment per 1,000 members of
+       the population. Population estimates are broken down by age group, sex, NHS 
+       Health Board and year. Note that there is a three month difference between the 
+       population estimate bins (Jan-Jan) and the SDMD data bins (Apr-Apr). However, 
+       population change is slow moving so this should not have a significant effect.")
+                    
+                    ) # tagList
+   ), # tabPanel                     
+      ## Demographics ----                     
       tabPanel("Demographics",
        tagList(
          sliderInput("years",
@@ -54,6 +124,7 @@ ui <- fluidPage(
          h4("People assessed in each financial year starting"),
          plotlyOutput("mainPlot")
       ),
+      ## Substance treated for ----
       tabPanel("Substance",
                tagList(sliderInput("years2",
                                    "Select financial year(s) beginning:",
@@ -74,24 +145,27 @@ ui <- fluidPage(
                                      liveSearch=TRUE,
                                      maxOptions = 3,
                                      maxOptionsText="Choose up to three options")),
-                       h4("People using a given drug on assessment in each financial year starting"),
+                       h4("People assessed for drug treatment in each financial year starting"),
                        plotlyOutput("drugPlot")
                ) # tagList
             ) # tabPanel
+     
         ) #tabBox
       
 ) #fluidpage
 
-# Define server logic required to draw a histogram
+## Server ----
 server <- function(input, output) {
    
-   ## Demographics plot
+   ## Demographics plot ----
    output$mainPlot <- renderPlotly({
      
      # Checking that some health boards have been chosen
      validate(need(length(input$hbs)>0, "Please select some health boards"))
      
-     if(length(seq(input$years[1], input$years[2])) > 6) {
+     if(length(seq(input$years[1], input$years[2])) > 8) {
+       yeargap = "5 years"
+     } else if (length(seq(input$years[1], input$years[2])) > 5) {
        yeargap = "3 years"
      } else {
        yeargap = "1 year"
@@ -139,12 +213,12 @@ server <- function(input, output) {
        ylab(ylabel) +
        theme(legend.position = "none",
              text = element_text(size=12),
-             axis.title = element_text(colour=phs_colours("phs-purple"), size=14),
+             axis.title = element_text(colour=phs_colours("phs-purple"), size=12),
              panel.background = element_blank(),
              axis.line.x = element_line(colour="black"),
              axis.line.y = element_line(colour="black"),
-             strip.text.y = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=14),
-             strip.text.x = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=14),
+             strip.text.y = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=12),
+             strip.text.x = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=12),
              strip.background = element_blank(),
              panel.grid.major.y = element_line(colour = "light grey")) 
      
@@ -153,13 +227,15 @@ server <- function(input, output) {
      
    })
    
-   ## Drug plot
+   ## Substance plot ----
    output$drugPlot <- renderPlotly({
      
      # Checking that some health boards have been chosen
      validate(need(length(input$hbs2)>0, "Please select some health boards"))
      
-     if(length(seq(input$years2[1], input$years2[2])) > 6) {
+     if(length(seq(input$years2[1], input$years2[2])) > 8) {
+       yeargap2 = "5 years"
+     } else if (length(seq(input$years2[1], input$years2[2])) > 5) {
        yeargap2 = "3 years"
      } else {
        yeargap2 = "1 year"
@@ -195,12 +271,12 @@ server <- function(input, output) {
        ylab(ylabel) +
        theme(legend.position = "none",
              text = element_text(size=12),
-             axis.title = element_text(colour=phs_colours("phs-purple"), size=14),
+             axis.title = element_text(colour=phs_colours("phs-purple"), size=12),
              panel.background = element_blank(),
              axis.line.x = element_line(colour="black"),
              axis.line.y = element_line(colour="black"),
-             strip.text.y = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=14),
-             strip.text.x = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=14),
+             strip.text.y = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=12),
+             strip.text.x = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=12),
              strip.background = element_blank(),
              panel.grid.major.y = element_line(colour = "light grey")) 
      
@@ -213,6 +289,7 @@ server <- function(input, output) {
    
 }
 
-# Run the application 
+# Run the application ----
 shinyApp(ui = ui, server = server)
 
+## END OF APP ----
