@@ -8,6 +8,7 @@ library(shinyWidgets)
 library(ggplot2)
 library(plotly)
 library(tidyverse)
+library(bslib)
 
 substrRight <- function(x, n){
   substr(x, 1, n)
@@ -28,6 +29,8 @@ sdmd <- read.csv("demographics_sdmd_healthboard.csv") %>%
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  
+  theme = bs_theme(version = 4, bootswatch = "minty"),
    
    # Application title
    titlePanel("Scottish Drug Misuse Database"),
@@ -114,9 +117,8 @@ server <- function(input, output) {
              panel.background = element_blank(),
              axis.line.x = element_line(colour="black"),
              axis.line.y = element_line(colour="black"),
-             strip.text.y = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", 
-                                         hjust=0.5, vjust=0.5),
-             strip.text.x = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold"),
+             strip.text.y = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=14),
+             strip.text.x = element_text(angle = 0, color=phs_colours("phs-purple"), face="bold", size=14),
              strip.background = element_blank(),
              panel.grid.major.y = element_line(colour = "light grey")) 
      
