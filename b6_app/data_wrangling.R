@@ -42,12 +42,12 @@ population <- read.csv("hb2019_pop_est_15072022.csv") %>%
                         "40 to 44 yrs old",
                         "45+ yrs old",
                         "All"),
-               names_to = "AgeGroup", values_to = "Population") %>% 
-  select(YearBeginning, HBRfull, AgeGroup, Sex, Population)
+               names_to = "Age group", values_to = "Population") %>% 
+  select(YearBeginning, HBRfull, `Age group`, Sex, Population)
 
 
 population_sub <- population %>% 
-  filter(Sex == "All", AgeGroup == "All") %>% 
+  filter(Sex == "All", `Age group` == "All") %>% 
   select(YearBeginning, HBRfull, Population)
 
 
@@ -56,7 +56,7 @@ population_sub <- population %>%
 sdmd <- read.csv("demographics_sdmd_healthboard.csv") %>% 
   mutate(HBRfull = phsmethods::match_area(as.character(HBR)),
          YearBeginning = substrRight(as.character(FinancialYear), 4),
-         AgeGroup = factor(as.character(AgeGroup), levels=c("Under 20yrs old",
+         `Age group` = factor(as.character(AgeGroup), levels=c("Under 20yrs old",
                                                             "20 to 24 yrs old",
                                                             "25 to 29 yrs old",
                                                             "30 to 34 yrs old",

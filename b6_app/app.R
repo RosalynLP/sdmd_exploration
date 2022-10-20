@@ -178,30 +178,47 @@ server <- function(input, output) {
        mutate(YearBeginning = as.Date(paste0(YearBeginning, "-01-01")))
      
      if (input$ageorsex == "Age"){
+       tooltip_list <- list("Age group", "text")
        p <- p %>% filter(Sex == "All",
-                         !(AgeGroup %in% c("Unknown", "All")))
+                         !(`Age group` %in% c("Unknown", "All")))
      } else {
-       p <- p %>% filter(AgeGroup == "All",
+       tooltip_list <- list("Sex", "text")
+       p <- p %>% filter(`Age group` == "All",
                         Sex != "All")
      }
      
      if (input$numberorpc == "Number"){
        ylabel <- "Number assessed"
        p <- p %>% 
-         ggplot(aes(x=YearBeginning, y=NumberAssessed)) 
+         ggplot(aes(x=YearBeginning, y=NumberAssessed, 
+                    text = paste0("Financial year: ", FinancialYear, "\n",
+                                  "Health Board: ", HBRfull, "\n",
+                                  "Number assessed: ", format(NumberAssessed, big.mark=',')
+                                 )
+                    )) 
      } else if (input$numberorpc == "Percentage"){
        ylabel <- "Percentage assessed"
        p <- p %>% 
-         ggplot(aes(x=YearBeginning, y=PercentAssessed)) 
+         ggplot(aes(x=YearBeginning, y=PercentAssessed,
+                    text = paste0("Financial year: ", FinancialYear, "\n",
+                                  "Health Board: ", HBRfull, "\n",
+                                  "Percentage assessed: ", paste0(round(PercentAssessed, 2), '%')
+                    )
+         ))
      } else {
        ylabel <- "Rate assessed per 1,000 population"
        p <- p %>% 
-         ggplot(aes(x=YearBeginning, y=Rate))
+         ggplot(aes(x=YearBeginning, y=Rate,
+                    text = paste0("Financial year: ", FinancialYear, "\n",
+                                  "Health Board: ", HBRfull, "\n",
+                                  "No. assessed per 1,000 population: ", round(Rate, 2)
+                    )
+         )) 
      }
      if(input$ageorsex == "Age"){
        p <- p + 
-         geom_bar(stat="identity", aes(fill=AgeGroup)) +
-         facet_grid(HBRfull~AgeGroup, switch="y", labeller = labeller(HBRfull = label_wrap_gen(width = 16)))
+         geom_bar(stat="identity", aes(fill=`Age group`)) +
+         facet_grid(HBRfull~`Age group`, switch="y", labeller = labeller(HBRfull = label_wrap_gen(width = 16)))
      } else {
        p <- p +
          geom_bar(stat="identity", aes(fill=Sex)) +
@@ -224,7 +241,7 @@ server <- function(input, output) {
              strip.background = element_blank(),
              panel.grid.major.y = element_line(colour = "light grey")) 
      
-     ggplotly(p) %>% 
+     ggplotly(p, tooltip = tooltip_list) %>% 
        layout(margin = list(b = 80, t = 50, r=150, l=100))
      
    })
@@ -249,17 +266,32 @@ server <- function(input, output) {
        filter(Substance %in% c("Any illicit", "Heroin", "Diazepam", "Cannabis"))
      
      if (input$numberorpc2 == "Number"){
-       ylabel <- "Number assessed"
+       ylabel <- "Number treated"
        p <- p %>% 
-         ggplot(aes(x=YearBeginning, y=NumberAssessed)) 
+         ggplot(aes(x=YearBeginning, y=NumberAssessed,
+                    text = paste0("Financial year: ", FinancialYear, "\n",
+                                  "Health Board: ", HBRfull, "\n",
+                                  "Number treated: ", format(NumberAssessed, big.mark=',')
+                    )
+         )) 
      } else if (input$numberorpc2 == "Percentage"){
-       ylabel <- "Percentage assessed"
+       ylabel <- "Percentage treated"
        p <- p %>% 
-         ggplot(aes(x=YearBeginning, y=PercentAssessed)) 
+         ggplot(aes(x=YearBeginning, y=PercentAssessed,
+                    text = paste0("Financial year: ", FinancialYear, "\n",
+                                  "Health Board: ", HBRfull, "\n",
+                                  "Percentage treated: ", paste0(round(PercentAssessed, 2), '%')
+                    )
+         ))
      } else {
-       ylabel <- "Rate assessed per 1,000 population"
+       ylabel <- "Rate treated per 1,000 population"
        p <- p %>% 
-         ggplot(aes(x=YearBeginning, y=Rate))
+         ggplot(aes(x=YearBeginning, y=Rate,
+                    text = paste0("Financial year: ", FinancialYear, "\n",
+                                  "Health Board: ", HBRfull, "\n",
+                                  "No. treated per 1,000 population: ", round(Rate, 2)
+                    )
+         )) 
      }
      
      p <- p +
@@ -282,7 +314,7 @@ server <- function(input, output) {
              strip.background = element_blank(),
              panel.grid.major.y = element_line(colour = "light grey")) 
      
-     ggplotly(p) %>% 
+     ggplotly(p, tooltip = list("Substance", "text")) %>% 
        layout(margin = list(b = 80, t = 50, r=150, l=100))
      
    })
