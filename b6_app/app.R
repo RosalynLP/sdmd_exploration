@@ -52,7 +52,7 @@ ui <- fluidPage(
                     br(),
                     h5("Source code"),
                     tags$li("The source code for this app can be found in ", 
-                            tags$a(href="https://github.com/RosalynLP/b6_presentation/tree/main", 
+                            tags$a(href="https://github.com/RosalynLP/sdmd_exploration", 
                                    "this Github repository", class="externallink")),
                     br(),
                     h5("Scottish Drug Misuse Database (SDMD)"),
