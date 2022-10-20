@@ -11,3 +11,13 @@ To run this app locally you need the following NHS Scotland open data:
 - (Treatment SDMD)[https://www.opendata.nhs.scot/dataset/scottish-drug-misuse-database/resource/aebb18ee-40c3-4520-9521-d0800e749567]
 
 For more information see the Notes on the app frontpage
+
+## Code layout
+
+### b6_app
+
+Contains the code for the shiny app
+
+### b6_slides
+
+Contains the R markdown for generating slides for my presentation
